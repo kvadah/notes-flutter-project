@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743959179664",
+    "project_id": "khalid-notes-flutter-app",
+    "storage_bucket": "khalid-notes-flutter-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743959179664:android:87865c8ad0a78236218315",
+        "android_client_info": {
+          "package_name": "com.example.notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEOdTAVHhNrVWB4MLLDHhq6_7ZcM2_YJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
