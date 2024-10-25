@@ -71,6 +71,7 @@ class _RegisterviewState extends State<Registerview> {
                     ;
                   else if (e.code == 'weak-password') ;
                 }
+                Navigator.of(context).pushNamedAndRemoveUntil('/verifyEmail',(route)=>false);
               },
               child: const Text('Register')),
           TextButton(

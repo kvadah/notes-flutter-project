@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/Register.dart';
-import 'package:notes/Views/EmailVerifyView';
+import 'package:notes/Views/EmailVerifyView.dart';
 import 'package:notes/Views/login.dart';
 
 import 'package:notes/firebase_options.dart';
@@ -20,6 +20,7 @@ void main() {
         routes: {
           '/login': (context) => const LoginView(),
           '/register': (context) => const Registerview(),
+          '/verifyEmail': (context) => const EmailVerifyView(),
         }),
   );
 }
@@ -43,11 +44,7 @@ class _HomepageState extends State<Homepage> {
           case ConnectionState.done:
             User? user = FirebaseAuth.instance.currentUser;
             if (user != null) {
-              if (user.emailVerified) {
-                return const LoginView();
-              } else {
-                return const EmailVerifyView();
-              }
+            return const LoginView();
             } else {
               return const Registerview();
             }
