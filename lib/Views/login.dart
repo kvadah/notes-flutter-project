@@ -1,8 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:notes/firebase_options.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:notes/Views/utilitis.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -12,6 +14,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  // text editor controllers for user inpt email and password
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -34,9 +37,11 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
+        backgroundColor: Colors.lightBlue,
       ),
       body: Column(
         children: [
+          // email text field
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
@@ -46,6 +51,7 @@ class _LoginViewState extends State<LoginView> {
               hintText: ('Email'),
             ),
           ),
+          //password text field
           TextField(
             controller: _password,
             obscureText: true,
@@ -55,6 +61,7 @@ class _LoginViewState extends State<LoginView> {
               hintText: ('Password'),
             ),
           ),
+          //login text Button
           TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.lightBlue,
@@ -62,31 +69,42 @@ class _LoginViewState extends State<LoginView> {
               onPressed: () async {
                 final email = _email.text;
                 final password = _password.text;
+
                 try {
+                  // signin user in firebase  with inputed email and password
                   await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: email, password: password);
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'user-not-found')
-                    ;
-                  else if (e.code == 'wrong-password') ;
-                }
-                User? user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
-                  Fluttertoast.showToast(
-                        msg: 'Email is verified',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
+                    email: email,
+                    password: password,
+                  );
+                  if (mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/notes',
+                      (route) => false,
                     );
+                  }
+                } on FirebaseAuthException catch (e) {
+                  devtools.log("FirebaseAuthException code: ${e.code}");
+                  devtools.log("FirebaseAuthException message: ${e.message}");
+                  if (e.code == 'invalid-credential') {
+                    await showErrorDialog(context, "Wrong Email or Password");
+                  } else if (e.code == 'invalid-email') {
+                    await showErrorDialog(context, 'Invalid Email');
+                  } else if (e.code == 'network-request-failed') {
+                    await showErrorDialog(
+                        context, "Network error, Connect and try again");
+                  } else {
+                    await showErrorDialog(context, "an Error occured");
+                  }
                 }
               },
               child: const Text('Login')),
-               TextButton(
-            onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil('/register',(route)=>false);
-            }, 
-          child: const Text("don't have anaccount? Register here"))
+          // text button to navigate to a register view
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/register', (route) => false);
+              },
+              child: const Text("don't have anaccount? Register here"))
         ],
       ),
     );
