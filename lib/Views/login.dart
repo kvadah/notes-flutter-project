@@ -1,9 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
-
+import 'package:notes/Auth/auth_exception.dart';
+import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/Views/utilitis.dart';
 
 class LoginView extends StatefulWidget {
@@ -72,7 +71,7 @@ class _LoginViewState extends State<LoginView> {
 
                 try {
                   // signin user in firebase  with inputed email and password
-                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  await AuthService.firebase().login(
                     email: email,
                     password: password,
                   );
@@ -82,20 +81,14 @@ class _LoginViewState extends State<LoginView> {
                       (route) => false,
                     );
                   }
-                } on FirebaseAuthException catch (e) {
-                  devtools.log("FirebaseAuthException code: ${e.code}");
-                  devtools.log("FirebaseAuthException message: ${e.message}");
-                  if (e.code == 'invalid-credential') {
-                    await showErrorDialog(context, "Wrong Email or Password");
-                  } else if (e.code == 'invalid-email') {
-                    await showErrorDialog(context, 'Invalid Email');
-                  } else if (e.code == 'network-request-failed') {
-                    await showErrorDialog(
-                        context, "Network error, Connect and try again");
-                  } else {
-                    await showErrorDialog(context, "an Error occured");
-                  }
+                } on InvalidEmailAuthException {
+                  await showErrorDialog(context, 'Invalid Email');
+                } on InvalidCredentialAuthException {
+                  await showErrorDialog(context, "Wrong Email or Password");
+                } on GenericAuthException {
+                  await showErrorDialog(context, "Failed to login");
                 }
+               
               },
               child: const Text('Login')),
           // text button to navigate to a register view

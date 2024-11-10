@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
+import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/NotesView.dart';
 import 'package:notes/Register.dart';
 import 'package:notes/Views/EmailVerifyView.dart';
@@ -41,16 +41,14 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       // build a widget after initializing a fire base connection
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+      future: AuthService.firebase().initialize(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            User? user = FirebaseAuth.instance.currentUser;
-            user?.reload();
+          final user = AuthService.firebase().currentUser;
+        
             if (user != null) {
-              if (user.emailVerified) {
+              if (user.isEmailVerified) {
                 // user is verified and logged in return the notes page
                 return const NotesView();
               } else {

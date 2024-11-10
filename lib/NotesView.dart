@@ -1,6 +1,7 @@
 // ignore: file_names
 
 import 'package:flutter/material.dart';
+import 'package:notes/Auth/auth_services.dart';
 
 enum MenuAction { logout, seting }
 
@@ -39,7 +40,10 @@ class _NotesViewState extends State<NotesView> {
           )
         ],
       ),
-      body:Center(child: Text('Wellcome', )) ,
+      body: Center(
+          child: Text(
+        'Wellcome',
+      )),
     );
   }
 }
@@ -66,7 +70,7 @@ Future<bool> showLogoutDialog(BuildContext context) async {
           ],
         ),
         content: const Column(
-            mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text('Are you sure you want to log out'),
           ],
@@ -74,10 +78,10 @@ Future<bool> showLogoutDialog(BuildContext context) async {
         actions: [
           TextButton(
               onPressed: () async {
+                await AuthService.firebase().logOut();
                 Navigator.of(context).pop(true);
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil('/login', (route) => false);
-                
               },
               child: const Text('Logout')),
           TextButton(

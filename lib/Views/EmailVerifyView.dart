@@ -1,6 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore: file_names
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:notes/Auth/auth_services.dart';
 
 class EmailVerifyView extends StatefulWidget {
   const EmailVerifyView({super.key});
@@ -19,22 +21,21 @@ class _EmailVerifyViewState extends State<EmailVerifyView> {
       body: Column(
         children: [
           const Text('verify your email to login'),
-         //  a button to send email vertification link
+          //  a button to send email vertification link
           TextButton(
               onPressed: () async {
-                User? user = FirebaseAuth.instance.currentUser;
-                try{
+                try {
                   //sending an email
-                 await user?.sendEmailVerification();
-                // ignore: empty_catches
-                }catch(e) {}
+                  AuthService.firebase().sendVertificationEmail();
+                  // ignore: empty_catches
+                } catch (e) {}
                 Fluttertoast.showToast(
-                        msg: 'Vertification Email sent to your email',
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                    );
+                  msg: 'Vertification Email sent to your email',
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.green,
+                  textColor: Colors.white,
+                );
               },
               child: const Text('Send vertification Email'))
         ],
