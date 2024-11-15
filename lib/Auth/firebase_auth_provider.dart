@@ -66,7 +66,7 @@ class FirebaseAuthProvider implements AuthProviders {
       if (e.code == 'invalid-email') {
         throw InvalidEmailAuthException();
       } else if (e.code == 'invalid-credential') {
-        throw WrongCredentialAuthException();
+        throw InvalidCredentialAuthException();
       } else {
         throw GenericAuthException();
       }
