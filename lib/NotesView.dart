@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:notes/Auth/auth_services.dart';
+import 'package:notes/CRUD/crud_services.dart';
 
 enum MenuAction { logout, seting }
 
@@ -13,6 +14,21 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+  late NotesService _notesService;
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+  @override
+  void initState() {
+    _notesService = NotesService();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _notesService.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,10 +56,25 @@ class _NotesViewState extends State<NotesView> {
           )
         ],
       ),
-      body: Center(
-          child: Text(
-        'Wellcome',
-      )),
+      body: FutureBuilder(
+          future: _notesService.getOrCreateUser(email: userEmail),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
+                    stream: _notesService.allNote,
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return const Text('wating for notes');
+                        default:
+                          return const Text('to be connected yet');
+                      }
+                    });
+              default:
+                return const Text('not done');
+            }
+          }),
     );
   }
 }
