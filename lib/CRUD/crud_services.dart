@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:notes/CRUD/crud_exception.dart';
+
 //we need a database user
 
 class DatabaseUser {
@@ -160,7 +161,7 @@ class NotesService {
     final text = '';
 
     final noteid = await db.insert(noteTabel,
-        {userIdColumn: db, textColumn: text, isSyncedWithCloudColumn: 1});
+        {userIdColumn: owner.id, textColumn: text, isSyncedWithCloudColumn: 1});
 
     final createdNote = DatabaseNote(
         id: noteid, userId: dbUser.id, text: text, isSyncedWithCloud: true);
@@ -235,10 +236,10 @@ class NotesService {
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     makeSureDbISOpen();
     try {
-      final user = getUser(email: email);
+      final user = await getUser(email: email);
       return user;
     } on CouldNotFindUser {
-      final user = createUser(email: email);
+      final user = await createUser(email: email);
       return user;
     }
   }
@@ -255,12 +256,13 @@ const dbName = 'notes.db';
 const createUserTable = ''' CREATE TABLE IF NOT EXISTS "user" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "email" TEXT NOT NULL UNIQUE
+        )
 ''';
-const createNoteTable = ''' CREAT TABLE IF NOT EXISTS "note"(
-      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-      "userID" INTEGER,
-      "text" TEXT,
-      "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
-      FOREIGN KEY ("userID) REFERENCES "user"("id")
-      )
+const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER,
+    "text" TEXT,
+    "isSyncedWithCloud" INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY ("userId") REFERENCES "user"("id")
+)
 ''';

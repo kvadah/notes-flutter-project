@@ -17,6 +17,7 @@ class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
+
   @override
   void initState() {
     _email = TextEditingController();
@@ -88,7 +89,6 @@ class _LoginViewState extends State<LoginView> {
                 } on GenericAuthException {
                   await showErrorDialog(context, "Failed to login");
                 }
-               
               },
               child: const Text('Login')),
           // text button to navigate to a register view

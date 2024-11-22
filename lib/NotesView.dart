@@ -1,5 +1,5 @@
 // ignore: file_names
-
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/CRUD/crud_services.dart';
@@ -36,6 +36,11 @@ class _NotesViewState extends State<NotesView> {
         title: const Text('Notes'),
         backgroundColor: Colors.lightBlue,
         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/newnotes');
+              },
+              icon: Icon(Icons.add)),
           PopupMenuButton<MenuAction>(
             onSelected: (value) {
               switch (value) {
@@ -64,7 +69,10 @@ class _NotesViewState extends State<NotesView> {
                 return StreamBuilder(
                     stream: _notesService.allNote,
                     builder: (context, snapshot) {
+                      dev.log(snapshot.toString());
                       switch (snapshot.connectionState) {
+                        case ConnectionState.active:
+                          return const Text(' connection state is active');
                         case ConnectionState.waiting:
                           return const Text('wating for notes');
                         default:
