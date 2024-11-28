@@ -58,10 +58,15 @@ class DatabaseNote {
 class NotesService {
   Database? _db;
   List<DatabaseNote> _notes = [];
-  final noteStreamController = StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> noteStreamController;
   Stream<List<DatabaseNote>> get allNote => noteStreamController.stream;
 //make this class singlton
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    noteStreamController =
+        StreamController<List<DatabaseNote>>.broadcast(onListen: () {
+      noteStreamController.sink.add(_notes);
+    });
+  }
   static final NotesService _shared = NotesService._sharedInstance();
   factory NotesService() => _shared;
 
@@ -106,7 +111,6 @@ class NotesService {
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
       _db = db;
-
       await db.execute(createUserTable);
       await db.execute(createNoteTable);
       _catcheNotes();
@@ -174,7 +178,8 @@ class NotesService {
   Future<void> deleteNote({required int id}) async {
     makeSureDbISOpen();
     final db = getDatabaseorthrow();
-    final deleteCount = db.delete(noteTabel, where: 'id=?', whereArgs: [id]);
+    final deleteCount =
+        await db.delete(noteTabel, where: 'id=?', whereArgs: [id]);
     if (deleteCount == 0) {
       throw CouldNotDeleteNote();
     } else {
@@ -221,8 +226,15 @@ class NotesService {
     makeSureDbISOpen();
     final db = getDatabaseorthrow();
 
-    final updateCount = await db
-        .update(noteTabel, {textColumn: text, isSyncedWithCloudColumn: 0});
+    final updateCount = await db.update(
+      noteTabel,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
     if (updateCount == 0) {
       throw CouldNotUpdateNote();
     }
