@@ -3,6 +3,8 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/CRUD/crud_services.dart';
+import 'package:notes/Utilities/show_logout_dialog.dart';
+import 'package:notes/Views/notes_list_view.dart';
 
 enum MenuAction { logout, seting }
 
@@ -18,7 +20,7 @@ class _NotesViewState extends State<NotesView> {
   String get userEmail => AuthService.firebase().currentUser!.email!;
 
   @override
-     void initState() {
+  void initState() {
     _notesService = NotesService();
     super.initState();
   }
@@ -70,20 +72,12 @@ class _NotesViewState extends State<NotesView> {
                           if (snapshot.hasData) {
                             final allNotes =
                                 snapshot.data as List<DatabaseNote>;
-
-                            return ListView.builder(
-                                itemCount: allNotes.length,
-                                itemBuilder: (context, index) {
-                                  final note = allNotes[index];
-                                  return ListTile(
-                                    title: Text(
-                                      note.text,
-                                      maxLines: 1,
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  );
-                                });
+                            return NotesListView(
+                              allnotes: allNotes,
+                              onDelete: (note) => {
+                                _notesService.deleteNote(id: note.id)
+                              },
+                            );
                           } else {
                             return CircularProgressIndicator();
                           }
@@ -98,51 +92,4 @@ class _NotesViewState extends State<NotesView> {
           }),
     );
   }
-}
-
-Future<bool> showLogoutDialog(BuildContext context) async {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), // Rounded corners
-        ),
-        backgroundColor: Colors.grey,
-        title: const Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.blueAccent),
-            Text(
-              'Log out',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Are you sure you want to log out'),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                await AuthService.firebase().logOut();
-                Navigator.of(context).pop(true);
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/login', (route) => false);
-              },
-              child: const Text('Logout')),
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel'))
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }
