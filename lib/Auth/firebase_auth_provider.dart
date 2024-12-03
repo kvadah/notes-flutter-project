@@ -29,11 +29,10 @@ class FirebaseAuthProvider implements AuthProviders {
         throw InvalidEmailAuthException();
       } else if (e.code == 'weak-password') {
         throw WeakPasswordAuthException();
-      }else{
+      } else {
         throw GenericAuthException();
       }
     }
-
   }
 
   @override
@@ -45,6 +44,7 @@ class FirebaseAuthProvider implements AuthProviders {
       return null;
     }
   }
+
 
   @override
   Future<AuthUser> login({
@@ -87,7 +87,9 @@ class FirebaseAuthProvider implements AuthProviders {
   Future<void> logOut() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      user = null;
       await FirebaseAuth.instance.signOut();
+      
     } else {
       throw UserNotLoggedInAuthException();
     }

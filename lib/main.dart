@@ -5,7 +5,7 @@ import 'package:notes/NotesView.dart';
 import 'package:notes/Register.dart';
 import 'package:notes/Views/EmailVerifyView.dart';
 import 'package:notes/Views/login.dart';
-import 'package:notes/Views/new_notes.dart';
+import 'package:notes/Views/create_or_update_note_view.dart';
 
 
 void main() {
@@ -25,7 +25,7 @@ void main() {
           '/register': (context) => const Registerview(),
           '/verifyEmail': (context) => const EmailVerifyView(),
           '/notes': (context) => const NotesView(),
-          '/newnotes': (context) => const NewNotes()
+          '/createOrUpdateNote': (context) => const CreateOrUpdateNote()
         }),
   );
 }
@@ -60,7 +60,7 @@ class _HomepageState extends State<Homepage> {
             } else {
               // if the user is null or not registered yet
               // return a register view
-              return const Registerview();
+              return const LoginView();
             }
 
           default:

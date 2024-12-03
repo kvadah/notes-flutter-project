@@ -34,14 +34,22 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed('/newnotes');
+                Navigator.of(context).pushNamed('/createOrUpdateNote');
               },
               icon: Icon(Icons.add)),
           PopupMenuButton<MenuAction>(
-            onSelected: (value) {
+            onSelected: (value) async {
               switch (value) {
                 case MenuAction.logout:
-                  showLogoutDialog(context);
+                  final shouldLogout = await showLogoutDialog(context);
+                  if (shouldLogout) {
+                    await AuthService.firebase().logOut();
+                     // ignore: use_build_context_synchronously
+                    await Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/login', (route) => false);
+                   
+                  }
+                  break;
                 case MenuAction.seting:
                 default:
               }
@@ -74,8 +82,12 @@ class _NotesViewState extends State<NotesView> {
                                 snapshot.data as List<DatabaseNote>;
                             return NotesListView(
                               allnotes: allNotes,
-                              onDelete: (note) => {
-                                _notesService.deleteNote(id: note.id)
+                              onDelete: (note) =>
+                                  {_notesService.deleteNote(id: note.id)},
+                              onTap: (note) async {
+                                await Navigator.of(context).pushNamed(
+                                    '/createOrUpdateNote',
+                                    arguments: note);
                               },
                             );
                           } else {

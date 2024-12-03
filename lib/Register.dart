@@ -5,7 +5,6 @@ import 'package:notes/Auth/auth_exception.dart';
 import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/Utilities/show_error_dialog.dart';
 
-
 class Registerview extends StatefulWidget {
   const Registerview({super.key});
 
@@ -68,6 +67,8 @@ class _RegisterviewState extends State<Registerview> {
                 try {
                   await AuthService.firebase()
                       .createUser(email: email, password: password);
+                  AuthService.firebase().sendVertificationEmail();
+                  Navigator.of(context).pushNamed('/verifyEmail');
                 } on EmailAlreadyInUseAuthException {
                   await showErrorDialog(
                     context,

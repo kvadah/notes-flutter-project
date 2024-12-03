@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'dart:developer' as dev;
 import 'package:notes/Auth/auth_services.dart';
 import 'package:notes/CRUD/crud_services.dart';
+import 'package:notes/Utilities/get_generic_arguement.dart';
 
-class NewNotes extends StatefulWidget {
-  const NewNotes({super.key});
+class CreateOrUpdateNote extends StatefulWidget {
+  const CreateOrUpdateNote({super.key});
 
   @override
-  State<NewNotes> createState() => _NewNotesState();
+  State<CreateOrUpdateNote> createState() => _CreateOrUpdateNoteState();
 }
 
-class _NewNotesState extends State<NewNotes> {
+class _CreateOrUpdateNoteState extends State<CreateOrUpdateNote> {
   DatabaseNote? _note;
   late final TextEditingController _textController;
   late final NotesService _noteService;
@@ -42,16 +43,24 @@ class _NewNotesState extends State<NewNotes> {
     _textController.addListener(_textControllerlistner);
   }
 
-  Future<DatabaseNote> createNote() async {
-    final existingNote = _note;
+  Future<DatabaseNote> createOrGetNote() async {
+    final existingNote = context.getArguement<DatabaseNote>();
     if (existingNote != null) {
+      _note = existingNote;
+      _textController.text = existingNote.text;
       return existingNote;
+    }
+    final newNote = _note;
+    if (newNote != null) {
+      return newNote;
     }
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final DatabaseUser owner = await _noteService.getOrCreateUser(email: email);
     try {
-      return await _noteService.createNote(owner: owner);
+      final createdNote = await _noteService.createNote(owner: owner);
+      _note = createdNote;
+      return createdNote;
     } catch (e) {
       dev.log(e.toString());
       dev.log('can not create note for some reason');
@@ -62,7 +71,7 @@ class _NewNotesState extends State<NewNotes> {
   void _saveNoteIfTextIsNotEmpty() {
     final note = _note;
     final text = _textController.text;
-    if (note != null && text.isNotEmpty) {
+    if (note != null && text.isNotEmpty && text != note.text) {
       _noteService.updateNote(note: note, text: text);
     }
   }
@@ -83,8 +92,8 @@ class _NewNotesState extends State<NewNotes> {
         title: const Text('New note'),
         backgroundColor: Colors.lightBlue,
       ),
-      body: FutureBuilder(
-          future: createNote(),
+      body:  FutureBuilder(
+          future: createOrGetNote(),
           builder: (context, snapshot) {
             //  dev.log(snapshot.toString());
             switch (snapshot.connectionState) {
