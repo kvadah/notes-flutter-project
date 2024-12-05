@@ -22,7 +22,7 @@ Future<T?> showGenericDialog<T>({
                   if (value != null) {
                     Navigator.of(context).pop(value);
                   } else {
-                    Navigator.of(context).pop;
+                    Navigator.of(context).pop();
                   }
                 },
                 child: Text(
