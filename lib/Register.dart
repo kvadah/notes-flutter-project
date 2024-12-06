@@ -158,7 +158,6 @@ class _RegisterviewState extends State<Registerview> {
                         'already registered? login here',
                         style: TextStyle(
                           color: Color.fromARGB(255, 27, 12, 231),
-                          fontSize: 18,
                         ),
                       )),
                 ),

@@ -63,7 +63,7 @@ class _CreateOrUpdateNoteState extends State<CreateOrUpdateNote> {
       return createdNote;
     } catch (e) {
       dev.log(e.toString());
-      dev.log('can not create note for some reason');
+      dev.log('Can not create note for some reason');
       rethrow;
     }
   }
@@ -92,48 +92,95 @@ class _CreateOrUpdateNoteState extends State<CreateOrUpdateNote> {
         title: const Text('New note'),
         backgroundColor: Colors.lightBlue,
       ),
-      body:  FutureBuilder(
-          future: createOrGetNote(),
-          builder: (context, snapshot) {
-            //  dev.log(snapshot.toString());
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                if (snapshot.hasError) {
-                  dev.log('snapshot has an error');
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-                _note = snapshot.data as DatabaseNote;
-                dev.log('connection state is done');
-                dev.log(_note.toString());
-                _setUptextContollerListner();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    hintText: 'write your note here',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue, // Border color
-                        width: 1.5, // Border thickness
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Colors.lightBlue, // Focused border color
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
+      body: FutureBuilder(
+        future: createOrGetNote(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                dev.log('Snapshot has an error');
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
                 );
-              default:
-                return const CircularProgressIndicator();
-            }
-          }),
+              }
+              _note = snapshot.data as DatabaseNote;
+              _setUptextContollerListner();
+
+              return CustomPaint(
+                painter: PaperPainter(),
+                child: Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          style: TextStyle(
+                            height: 1.4, // Line height to match the paper lines
+                            fontSize: 20,
+                            color: Colors.black.withOpacity(0.6),
+                            // Adjust font size as needed
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            hintText: 'Write your note here',
+
+                            hintStyle: TextStyle(
+                              color: Colors.black.withOpacity(0.3),
+                              fontStyle: FontStyle.italic,
+                              fontSize: 22,
+                              // Blur effect on hint text
+                              backgroundColor: Colors.transparent,
+                            ),
+                            border:
+                                InputBorder.none, // Remove the default border
+                            focusedBorder:
+                                InputBorder.none, // Remove the focused border
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
+  }
+}
+
+// Custom painter to draw the paper background and lines
+class PaperPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    // Draw the background to simulate paper
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
+
+    // Draw horizontal lines to simulate notebook lines
+    final linePaint = Paint()
+      ..color = Colors.black.withOpacity(0.1)
+      ..strokeWidth = 1.0;
+
+    // Calculate the height of one line, this should match the TextField's line height
+    const lineHeight = 32.0; // Adjust this value for the line height
+
+    for (double y = 0; y < size.height; y += lineHeight) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), linePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
