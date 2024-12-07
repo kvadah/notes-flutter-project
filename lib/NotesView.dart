@@ -36,7 +36,10 @@ class _NotesViewState extends State<NotesView> {
               onPressed: () {
                 Navigator.of(context).pushNamed('/createOrUpdateNote');
               },
-              icon: Icon(Icons.add)),
+              icon: Icon(
+                Icons.add,
+                color: Colors.black,
+              )),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
@@ -44,10 +47,9 @@ class _NotesViewState extends State<NotesView> {
                   final shouldLogout = await showLogoutDialog(context);
                   if (shouldLogout) {
                     await AuthService.firebase().logOut();
-                     // ignore: use_build_context_synchronously
+                    // ignore: use_build_context_synchronously
                     await Navigator.of(context)
                         .pushNamedAndRemoveUntil('/login', (route) => false);
-                   
                   }
                   break;
                 case MenuAction.seting:
@@ -80,15 +82,28 @@ class _NotesViewState extends State<NotesView> {
                           if (snapshot.hasData) {
                             final allNotes =
                                 snapshot.data as List<DatabaseNote>;
-                            return NotesListView(
-                              allnotes: allNotes,
-                              onDelete: (note) =>
-                                  {_notesService.deleteNote(id: note.id)},
-                              onTap: (note) async {
-                                await Navigator.of(context).pushNamed(
-                                    '/createOrUpdateNote',
-                                    arguments: note);
-                              },
+                            if (allNotes.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  'No notes available. Create your first note!',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              );
+                            }
+                            return Container(
+                              margin: EdgeInsets.only(top: 7),
+                              child: NotesListView(
+                                allnotes: allNotes,
+                                onDelete: (note) =>
+                                    {_notesService.deleteNote(id: note.id)},
+                                onTap: (note) async {
+                                  await Navigator.of(context).pushNamed(
+                                      '/createOrUpdateNote',
+                                      arguments: note);
+                                },
+                              ),
                             );
                           } else {
                             return CircularProgressIndicator();

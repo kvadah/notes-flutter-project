@@ -18,35 +18,52 @@ class NotesListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: allnotes.length,
-        itemBuilder: (context, index) {
-          final note = allnotes[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-            height: 80,
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(117, 117, 116, 0.698),
-            ),
-            child: ListTile(
-              onTap: () {
-                onTap(note);
-              },
-              title: Text(
-                note.text,
-                maxLines: 1,
-                softWrap: true,
-                overflow: TextOverflow.ellipsis,
+    return Container(
+      color: Colors.grey,
+      child: ListView.builder(
+          itemCount: allnotes.length,
+          itemBuilder: (context, index) {
+            final note = allnotes[index];
+            return Container(
+              margin: const EdgeInsets.only(left: 3, top: 2, right: 5),
+              height: 70,
+              decoration: BoxDecoration(
+                color: Color.fromRGBO(245, 245, 245, 1),
               ),
-              trailing: IconButton(
-                onPressed: () async {
-                  final shouldDelete = await showDeleteDialog(context);
-                  if (shouldDelete) onDelete(note);
-                },
-                icon: Icon(Icons.delete),
-              ),
-            ),
-          );
-        });
+              child: allnotes.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Create your first Note",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  : ListTile(
+                      onTap: () {
+                        onTap(note);
+                      },
+                      title: Text(
+                        style: TextStyle(
+                          fontSize: 17,
+                        ),
+                        note.text,
+                        maxLines: 1,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        onPressed: () async {
+                          final shouldDelete = await showDeleteDialog(context);
+                          if (shouldDelete) onDelete(note);
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ),
+            );
+          }),
+    );
   }
 }
