@@ -57,9 +57,18 @@ class DatabaseNote {
 
 class NotesService {
   Database? _db;
+  DatabaseUser? _user;
   List<DatabaseNote> _notes = [];
   late final StreamController<List<DatabaseNote>> noteStreamController;
-  Stream<List<DatabaseNote>> get allNote => noteStreamController.stream;
+  Stream<List<DatabaseNote>> get allNote =>
+      noteStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw CurrentUserNeeedToSetUP();
+        }
+      });
 //make this class singlton
   NotesService._sharedInstance() {
     noteStreamController =
@@ -245,13 +254,18 @@ class NotesService {
     return updatedNote;
   }
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     makeSureDbISOpen();
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) _user = user;
       return user;
     } on CouldNotFindUser {
       final user = await createUser(email: email);
+      if (setAsCurrentUser) _user = user;
       return user;
     }
   }
@@ -278,3 +292,8 @@ const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
     FOREIGN KEY ("userId") REFERENCES "user"("id")
 )
 ''';
+
+extension Filter<T> on Stream<List<T>> {
+  Stream<List<T>> filter(bool Function(T) where) =>
+      map((items) => items.where(where).toList());
+}
